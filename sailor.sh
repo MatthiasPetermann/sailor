@@ -111,6 +111,7 @@ build()
 	${mkdir} ${shippath}/etc
 	${cp} /usr/share/zoneinfo/GMT ${shippath}/etc/localtime
 	${cp} /etc/resolv.conf ${shippath}/etc/
+    ${cp} /etc/group ${shippath}/etc/
 	# custom DNS (mDNSresponder for OS X)
 	dns add
 	# custom /etc
