@@ -111,16 +111,14 @@ build()
 	${mkdir} ${shippath}/etc
 	${cp} /usr/share/zoneinfo/GMT ${shippath}/etc/localtime
 	${cp} /etc/resolv.conf ${shippath}/etc/
-    ${cp} /etc/group ${shippath}/etc/
-	# custom DNS (mDNSresponder for OS X)
-	dns add
+	# TODO - is this still needed?
+    #${cp} /etc/group ${shippath}/etc/
+	
 	# custom /etc
 	common="ships/common"
 	# populate commons
-	for t in all ${OS}
-	do
-		[ -d ${common}/${t} ] && ${rsync} ${common}/${t}/ ${shippath}/
-	done
+	[ -d ${common} ] && ${rsync} ${common}/ ${shippath}/
+	
 	# populate 3rd party
 	[ -d ships/${shipname} ] && ${rsync} ships/${shipname}/ ${shippath}/
 
@@ -128,6 +126,7 @@ build()
 	# to ship's ${prefix} are located in ships/${shipname}/PREFIX and
 	# then copied to ${shippath}/PREFIX. The following will move them to
 	# the correct ${prefix}
+	# TODO - what is the purpose of this?
 	[ -d ${shippath}/PREFIX ] && \
 		${rsync} ${shippath}/PREFIX/ ${shippath}/${prefix}/
 	# fix etc perms
@@ -304,8 +303,6 @@ build|create|make)
 	at_cmd_run build ${param}
 	# umount devfs and loopback mounts
 	mounts umount
-	# remove mDNS (OS X)
-	dns del
 	;;
 destroy)
 	provide_conf_file ${param}
@@ -354,8 +351,6 @@ start|stop|status)
 		${cat} ${param} >> ${shipidfile}
 		# start user commands after the service is started
 		ipupdown up
-		# add mDNS entry (OS X)
-		dns add
 		# mount loopbacks and devfs
 		mounts mount
 		# execute rc.d scripts if any
@@ -372,8 +367,6 @@ start|stop|status)
 		ipupdown down
 		# start user commands after the service is stopped
 		at_cmd_run stop ${shipidfile}
-		# remove mDNS entry (OS X)
-		dns del
 		# umount loopbacks and devfs
 		mounts umount
 		${rm} ${shipidfile}
